@@ -1,5 +1,7 @@
 package com.fm.tdd.domain;
 
+import javafx.geometry.Pos;
+
 /**
  * <p>A Ship has a {@link com.fm.tdd.domain.Position}, {@link com.fm.tdd.domain.Heading}, length and name</p>
  *
@@ -27,51 +29,94 @@ package com.fm.tdd.domain;
  */
 public class Ship {
 
-	private String name;
-	private int length;
-	private Heading heading;
-	private Position position;
+    private String name;
+    private int length;
+    private Heading heading;
+    private Position position;
+    private Position shipEndPos;
+    private int lives;
 
-	public Ship(String name, int length, Heading heading, Position position) {
-		this.name = name;
-		this.length = length;
-		this.heading = heading;
-		this.position = position;
-	}
+    public Ship(String name, int length, Heading heading, Position position) {
+        if (name == null || name.trim().isEmpty()) throw new IllegalArgumentException();
+        if (length < 1 || length > 5) throw new IllegalArgumentException();
+        if (heading == null || position == null) throw new IllegalArgumentException();
 
-	public String getName() {
-		return name;
-	}
+        if (heading == heading.EAST) {
+            shipEndPos = new Position(position.getX() - length, position.getY());
+        } else if (heading == heading.WEST) {
+            shipEndPos = new Position(position.getX() + length, position.getY());
+        } else if (heading == heading.NORTH) {
+            shipEndPos = new Position(position.getX(), position.getY() - length);
+        } else if (heading == heading.SOUTH) {
+            shipEndPos = new Position(position.getX(), position.getY() + length);
+        }
+        this.name = name;
+        this.length = length;
+        this.heading = heading;
+        this.position = position;
 
-	public int getLength() {
-		return length;
-	}
+        this.lives = length;
+    }
 
-	public Heading getHeading() {
-		return heading;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Position getPosition() {
-		return position;
-	}
+    public int getLength() {
+        return length;
+    }
 
-	public boolean isHit(Position position) {
-		return false;
-	}
+    public Heading getHeading() {
+        return heading;
+    }
 
-	public boolean isSunk() {
-		return false;
-	}
+    public Position getPosition() {
+        return position;
+    }
 
-	public void addShipObserver(ShipObserver shipObserver) {
+    public boolean isHit(Position position) {
+        if (inBounds(position)) {
+            this.lives--;
+            return true;
+        }
 
-	}
+        return false;
+    }
 
-	public void removeShipObserver(ShipObserver shipObserver) {
+    public boolean isSunk() {
+        return lives == 0;
+    }
 
-	}
+    public void addShipObserver(ShipObserver shipObserver) {
+        if (shipObserver == null) throw new IllegalArgumentException();
+    }
 
-	public boolean overlaps(Ship otherShip) {
-		return false;
-	}
+    public void removeShipObserver(ShipObserver shipObserver) {
+        if (shipObserver == null) throw new IllegalArgumentException();
+    }
+
+    public boolean overlaps(Ship otherShip) {
+        if(inBounds(otherShip.position) || inBounds(otherShip.shipEndPos)) return true;
+        int startPosX = Math.max(otherShip.position.getX(), otherShip.shipEndPos.getX());
+        int endPosX = Math.min(otherShip.position.getX(), otherShip.shipEndPos.getX());
+        while(startPosX <= endPosX) {
+            int startPosY = Math.min(otherShip.position.getY(), otherShip.shipEndPos.getY());
+            int endPosY = Math.max(otherShip.position.getY(), otherShip.shipEndPos.getY());
+            while(startPosY <= endPosY) {
+                if(inBounds(new Position(startPosX, startPosY))) return true;
+                startPosY++;
+            }
+            startPosX++;
+        }
+        return false;
+    }
+
+    private boolean inBounds(Position position) {
+        if (position.getX() <= Math.max(shipEndPos.getX(), this.position.getX()) &&
+                position.getX() >= Math.min(shipEndPos.getX(), this.position.getX()) &&
+                position.getY() >= Math.min(shipEndPos.getY(), this.position.getY()) &&
+                position.getY() <= Math.max(this.position.getY(), this.shipEndPos.getY()))
+            return true;
+        return false;
+    }
 }

@@ -2,6 +2,7 @@ package com.fm.tdd;
 
 public abstract class AbstractBoard implements DrawableBoard {
 
+	protected CoordinateState[][] grid;
 
 	public AbstractBoard() {
 
@@ -9,6 +10,6 @@ public abstract class AbstractBoard implements DrawableBoard {
 
 	@Override
 	public CoordinateState[][] getGrid() {
-		return null;
+		return grid;
 	}
 }

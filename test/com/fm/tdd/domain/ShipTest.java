@@ -248,7 +248,7 @@ public class ShipTest {
 	@Test
 	public void testOverlapsReturnsFalseWhenDoNotShipOverlapsButTouchAtBack() {
 		Ship originalShip = new Ship("Submarine", 4, Heading.EAST, new Position(5, 2));
-		Ship proposedShip = new Ship("Aircraft Carrier", 5, Heading.SOUTH, new Position(1, 1));
+		Ship proposedShip = new Ship("Aircraft Carrier", 5, Heading.SOUTH, new Position(1, 3));
 
 		assertFalse(originalShip.overlaps(proposedShip));
 	}
